@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>{% block title %}MyTaskHub{% endblock %}</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="app-layout">
+    <!-- Top Header -->
+    <header class="top-header">
+        <div class="header-left">
+            <div class="user-avatar" id="user-avatar">👤</div>
+            {% if user.is_authenticated %}
+                <span class="sign-in-link">{{ user.username }} | <a href="{% url 'logout' %}" style="color: inherit; text-decoration: none;">Logout</a></span>
+            {% else %}
+                <span class="sign-in-link"><a href="{% url 'login' %}" style="color: inherit; text-decoration: none;">Sign In</a> | <a href="{% url 'signup' %}" style="color: inherit; text-decoration: none;">Sign Up</a></span>
+            {% endif %}
+        </div>
+        <div class="header-right">
+            <button id="word-btn" class="icon-btn" title="Word of the day">📖</button>
+            <button id="chat-btn" class="icon-btn" title="Chat with me">💬</button>
+            <button id="stats-btn" class="icon-btn" title="Statistics">📊</button>
+            <button id="notif-btn" class="notif-btn icon-btn" title="Notifications">🔔 <span id="notif-count">0</span></button>
+            <button id="settings-btn" class="icon-btn" title="Settings">⚙️</button>
+        </div>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <nav class="sidebar-nav">
+            <a href="{% url 'task_list' %}?filter=today" class="sidebar-item {% if request.GET.filter == 'today' %}active{% endif %}">
+                <span class="sidebar-icon">🌞</span>
+                <span class="sidebar-label">Today</span>
+            </a>
+            <a href="{% url 'task_list' %}?filter=tomorrow" class="sidebar-item {% if request.GET.filter == 'tomorrow' %}active{% endif %}">
+                <span class="sidebar-icon">📅</span>
+                <span class="sidebar-label">Tomorrow</span>
+            </a>
+            <a href="{% url 'task_list' %}?filter=week" class="sidebar-item {% if request.GET.filter == 'week' %}active{% endif %}">
+                <span class="sidebar-icon">📆</span>
+                <span class="sidebar-label">This Week</span>
+            </a>
+            <a href="{% url 'task_list' %}?filter=completed" class="sidebar-item {% if request.GET.filter == 'completed' %}active{% endif %}">
+                <span class="sidebar-icon">✅</span>
+                <span class="sidebar-label">Completed</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Statistics Modal -->
+    <div id="stats-modal" class="stats-modal" style="display: none;">
+        <div class="stats-modal-content">
+            <div class="stats-modal-header">
+                <h2>Statistics</h2>
+                <button class="stats-modal-close">&times;</button>
+            </div>
+            <div class="stats-modal-body">
+                <div class="stats-modal-card">
+                    <div class="stats-modal-label">Total Completed Tasks</div>
+                    <div class="stats-modal-value" id="stat-total-completed">0</div>
+                </div>
+                <div class="stats-modal-card">
+                    <div class="stats-modal-label">Tasks Completed This Week</div>
+                    <div class="stats-modal-value" id="stat-week-completed">0</div>
+                </div>
+                <div class="stats-modal-card">
+                    <div class="stats-modal-label">Tasks Completed Today</div>
+                    <div class="stats-modal-value" id="stat-today-completed">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Word of the Day Modal -->
+    <div id="word-modal" class="word-modal" style="display: none;">
+        <div class="word-modal-content">
+            <div class="word-modal-header">
+                <h2>Word of the Day</h2>
+                <button class="word-modal-close">&times;</button>
+            </div>
+            <div class="word-modal-body">
+                <div class="word-message" id="word-message">
+                    Loading motivational message...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot Modal -->
+    <div id="chat-modal" class="chat-modal" style="display: none;">
+        <div class="chat-modal-content">
+            <div class="chat-modal-header">
+                <h2>Chat Assistant</h2>
+                <button class="chat-modal-close">&times;</button>
+            </div>
+            <div class="chat-modal-body">
+                <div class="chat-messages" id="chat-messages">
+                    <div class="chat-message bot-message">
+                        <div class="message-content">
+                            Hi! 👋 I'm here to help you with task management, time planning, and productivity tips. Ask me anything!
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" id="chat-input" class="chat-input" placeholder="Ask me about planning, tasks, or time management...">
+                    <button id="chat-send" class="chat-send-btn">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Settings Modal -->
+    <div id="theme-modal" class="theme-modal" style="display: none;">
+        <div class="theme-modal-content">
+            <div class="theme-modal-header">
+                <h2>Change Theme</h2>
+                <button class="theme-modal-close">&times;</button>
+            </div>
+            <div class="theme-modal-body">
+                <div class="theme-grid">
+                    <div class="theme-option" data-theme="light" style="background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="peach" style="background: linear-gradient(135deg, #FFB88C 0%, #FFA07A 50%, #FF8C69 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="green" style="background: linear-gradient(135deg, #8BC34A 0%, #689F38 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="red-texture" style="background: linear-gradient(135deg, #E74C3C 0%, #C0392B 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="blue-grid" style="background: linear-gradient(135deg, #3498DB 0%, #2980B9 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="teal-waves" style="background: linear-gradient(135deg, #16A085 0%, #138D75 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="burgundy" style="background: linear-gradient(135deg, #922B21 0%, #7B241C 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="beige" style="background: linear-gradient(135deg, #D7CCC8 0%, #BCAAA4 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="orange" style="background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="yellow" style="background: linear-gradient(135deg, #FFC107 0%, #FFA000 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="gray-dots" style="background: linear-gradient(135deg, #78909C 0%, #546E7A 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="blue-curve" style="background: linear-gradient(135deg, #42A5F5 0%, #1976D2 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="teal-dark" style="background: linear-gradient(135deg, #26A69A 0%, #00897B 50%, #263238 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="dark-gray" style="background: linear-gradient(135deg, #424242 0%, #212121 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="lime" style="background: linear-gradient(135deg, #9CCC65 0%, #7CB342 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="snow" style="background: linear-gradient(135deg, #ECEFF1 0%, #CFD8DC 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="dark-red" style="background: linear-gradient(135deg, #B71C1C 0%, #880E4F 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="purple" style="background: linear-gradient(135deg, #AB47BC 0%, #8E24AA 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="bright-orange" style="background: linear-gradient(135deg, #FF6F00 0%, #E65100 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="forest" style="background: linear-gradient(135deg, #388E3C 0%, #2E7D32 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="navy" style="background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="plum" style="background: linear-gradient(135deg, #6A1B9A 0%, #4A148C 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                    <div class="theme-option" data-theme="cyan-black" style="background: linear-gradient(135deg, #00BCD4 0%, #0097A7 50%, #000000 100%);">
+                        <span class="theme-check">✓</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

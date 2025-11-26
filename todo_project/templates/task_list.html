@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title|default:"Tasks" }}{% endblock %}
+
+{% block content %}
+<div class="task-page">
+    <div class="page-header">
+        <h1 class="page-title">{{ page_title|default:"Today" }}</h1>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-value">{{ pending_count|default:"0" }}</div>
+            <div class="stat-label">Tasks to be Completed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ completed_count|default:"0" }}</div>
+            <div class="stat-label">Completed Tasks</div>
+        </div>
+    </div>
+
+    <!-- Quick Add Task -->
+    <div class="quick-add-container">
+        <form method="POST" action="{% url 'quick_add_task' %}" class="quick-add-form" id="quickAddForm">
+            {% csrf_token %}
+            <input type="hidden" name="filter" value="{{ current_filter }}">
+            <input 
+                type="text" 
+                name="title" 
+                class="quick-add-input" 
+                placeholder="Add a task to &quot;{{ page_title|default:"Tasks" }}&quot;, press [Enter] to save"
+                autocomplete="off"
+            >
+        </form>
+    </div>
+
+    <!-- Task List -->
+    <div class="tasks-container">
+        {% if tasks %}
+            {% for task in tasks %}
+            <div class="task-item {% if task.completed %}task-completed{% endif %}" data-task-id="{{ task.id }}">
+                <div class="task-checkbox-wrapper">
+                    <input 
+                        type="checkbox" 
+                        class="task-checkbox" 
+                        id="task-{{ task.id }}" 
+                        {% if task.completed %}checked{% endif %}
+                        onchange="toggleTaskCompletion('{{ task.id }}', this.checked)"
+                    >
+                    <label for="task-{{ task.id }}"></label>
+                </div>
+                <div class="task-content">
+                    <div class="task-title">{{ task.title }}</div>
+                    <div class="task-meta">
+                        {% if task.due_date %}
+                            <span class="task-date">📅 {{ task.due_date|date:"M d" }}</span>
+                        {% endif %}
+                        {% if task.due_time %}
+                            <span class="task-time">⏰ {{ task.due_time|time:"H:i" }}</span>
+                        {% endif %}
+                        {% if task.priority %}
+                            <span class="task-priority priority-{{ task.priority|lower }}">{{ task.priority }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="task-actions">
+                    <a href="{% url 'edit_task' task.id %}?filter={{ current_filter }}" class="task-action-btn" title="Edit">✏️</a>
+                    <a href="{% url 'delete_task' task.id %}?filter={{ current_filter }}" class="task-action-btn delete-task-btn" title="Delete">🗑️</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-tasks">
+                <div class="no-tasks-icon">📋</div>
+                <div class="no-tasks-title">No Task</div>
+                <div class="no-tasks-message">Click the input box above to add a new task</div>
+            </div>
+        {% endif %}
+        
+        {% if has_completed %}
+            <button class="show-completed-btn" onclick="toggleCompleted()">
+                Show Completed Tasks ▼
+            </button>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

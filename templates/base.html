@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MyTaskHub{% endblock %}</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="app-layout">
+    <!-- Top Header -->
+    <header class="top-header">
+        <div class="header-left">
+            <div class="user-avatar">👤</div>
+            <span class="sign-in-link">Sign In | Sign Up</span>
+        </div>
+        <div class="header-right">
+            <button class="icon-btn" title="Statistics">📊</button>
+            <button id="notif-btn" class="notif-btn icon-btn" title="Notifications">🔔 <span id="notif-count">0</span></button>
+            <button class="icon-btn" title="Settings">⚙️</button>
+        </div>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <nav class="sidebar-nav">
+            <a href="{% url 'task_list' %}?filter=today" class="sidebar-item {% if request.GET.filter == 'today' %}active{% endif %}">
+                <span class="sidebar-icon">🌞</span>
+                <span class="sidebar-label">Today</span>
+                <span class="sidebar-count">{{ today_count|default:0 }}m {{ today_tasks|default:0 }}</span>
+            </a>
+            <a href="{% url 'task_list' %}?filter=tomorrow" class="sidebar-item {% if request.GET.filter == 'tomorrow' %}active{% endif %}">
+                <span class="sidebar-icon">📅</span>
+                <span class="sidebar-label">Tomorrow</span>
+                <span class="sidebar-count">{{ tomorrow_count|default:0 }}m {{ tomorrow_tasks|default:0 }}</span>
+            </a>
+            <a href="{% url 'task_list' %}?filter=week" class="sidebar-item {% if request.GET.filter == 'week' %}active{% endif %}">
+                <span class="sidebar-icon">📆</span>
+                <span class="sidebar-label">This Week</span>
+                <span class="sidebar-count">{{ week_count|default:0 }}m {{ week_tasks|default:0 }}</span>
+            </a>
+            <a href="{% url 'task_list' %}?filter=planned" class="sidebar-item {% if request.GET.filter == 'planned' %}active{% endif %}">
+                <span class="sidebar-icon">📋</span>
+                <span class="sidebar-label">Planned</span>
+                <span class="sidebar-count">{{ planned_count|default:0 }}m {{ planned_tasks|default:0 }}</span>
+            </a>
+            <a href="{% url 'task_list' %}?filter=completed" class="sidebar-item {% if request.GET.filter == 'completed' %}active{% endif %}">
+                <span class="sidebar-icon">✅</span>
+                <span class="sidebar-label">Completed</span>
+            </a>
+            <a href="{% url 'task_list' %}" class="sidebar-item {% if not request.GET.filter %}active{% endif %}">
+                <span class="sidebar-icon">📝</span>
+                <span class="sidebar-label">Tasks</span>
+                <span class="sidebar-count">{{ all_count|default:0 }}m {{ all_tasks|default:0 }}</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
