@@ -4,10 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // WORD OF DAY AUTO-POPUP - Must run first!
     console.log("=== WORD OF DAY AUTO-POPUP START ===");
     
-    // TEMPORARY: Clear localStorage to force popup (for testing)
-    localStorage.removeItem('wordOfDayLastShown');
-    console.log("Cleared localStorage for testing");
-    
     const wordModalElement = document.getElementById('word-modal');
     console.log("Word modal element found:", wordModalElement);
     
@@ -528,21 +524,51 @@ function fetchNotificationCount() {
 function toggleNotifDropdown() {
     let dd = document.getElementById('notif-dropdown');
     if (dd) { dd.remove(); return; }
+    
     const btn = document.getElementById('notif-btn');
     if (!btn) return;
-    dd = document.createElement('div');
-    dd.id = 'notif-dropdown';
-    dd.className = 'notif-dropdown';
-    const tasks = window._latestNotifTasks || [];
-    renderNotifDropdown(dd, tasks);
-    // Append to body and position the dropdown exactly under the notification button
-    document.body.appendChild(dd);
-    const rect = btn.getBoundingClientRect();
-    const left = rect.left + rect.width / 2 + window.scrollX;
-    const top = rect.bottom + 8 + window.scrollY;
-    dd.style.left = `${left}px`;
-    dd.style.top = `${top}px`;
-    dd.style.transform = 'translateX(-50%)';
+    
+    // Fetch fresh notification data when opening the dropdown
+    const timestamp = new Date().getTime();
+    fetch(`/api/notifications/count/?_=${timestamp}`)
+        .then(res => res.json())
+        .then(data => {
+            console.log('Fresh notification data fetched:', data);
+            
+            // Update cache
+            window._latestNotifTasks = data.tasks || [];
+            
+            // Create and render dropdown with fresh data
+            dd = document.createElement('div');
+            dd.id = 'notif-dropdown';
+            dd.className = 'notif-dropdown';
+            renderNotifDropdown(dd, data.tasks || []);
+            
+            // Append to body and position the dropdown exactly under the notification button
+            document.body.appendChild(dd);
+            const rect = btn.getBoundingClientRect();
+            const left = rect.left + rect.width / 2 + window.scrollX;
+            const top = rect.bottom + 8 + window.scrollY;
+            dd.style.left = `${left}px`;
+            dd.style.top = `${top}px`;
+            dd.style.transform = 'translateX(-50%)';
+        })
+        .catch(err => {
+            console.error('Error fetching notifications:', err);
+            // Fallback to cached data
+            dd = document.createElement('div');
+            dd.id = 'notif-dropdown';
+            dd.className = 'notif-dropdown';
+            const tasks = window._latestNotifTasks || [];
+            renderNotifDropdown(dd, tasks);
+            document.body.appendChild(dd);
+            const rect = btn.getBoundingClientRect();
+            const left = rect.left + rect.width / 2 + window.scrollX;
+            const top = rect.bottom + 8 + window.scrollY;
+            dd.style.left = `${left}px`;
+            dd.style.top = `${top}px`;
+            dd.style.transform = 'translateX(-50%)';
+        });
 }
 
 function renderNotifDropdown(container, tasks) {
@@ -562,7 +588,13 @@ function renderNotifDropdown(container, tasks) {
     container.innerHTML = '<ul class="notif-list">' + tasks.map(t => {
         const time = t.due_time ? (' at ' + t.due_time) : '';
         const date = t.due_date ? (' on ' + t.due_date) : '';
-        return `<li class="notif-item"><a href="/edit/${t.id}/?filter=${currentFilter}">${escapeHtml(t.title)}<span class="notif-time">${date}${time}</span></a></li>`;
+        const timeInfo = (date || time) ? `<span class="task-time">${date}${time}</span>` : '';
+        return `<li class="notif-item">
+            <a href="/edit/${t.id}/?filter=${currentFilter}">
+                <span class="task-title">${escapeHtml(t.title)}</span>
+                ${timeInfo}
+            </a>
+        </li>`;
     }).join('') + '</ul>';
 }
 
@@ -931,8 +963,36 @@ function toggleTaskCompletion(taskId, isCompleted) {
     .then(response => response.json())
     .then(data => {
         console.log('Task updated:', data);
-        // Optionally refresh statistics
-        location.reload();
+        
+        // Update the task item appearance
+        const taskItem = document.querySelector(`[data-task-id="${taskId}"]`);
+        if (taskItem) {
+            if (isCompleted) {
+                taskItem.classList.add('task-completed');
+            } else {
+                taskItem.classList.remove('task-completed');
+            }
+        }
+        
+        // Update statistics counters
+        const pendingElement = document.querySelector('.stat-card .stat-value');
+        const completedElement = document.querySelectorAll('.stat-card .stat-value')[1];
+        
+        if (pendingElement && completedElement) {
+            let pending = parseInt(pendingElement.textContent) || 0;
+            let completed = parseInt(completedElement.textContent) || 0;
+            
+            if (isCompleted) {
+                pending = Math.max(0, pending - 1);
+                completed = completed + 1;
+            } else {
+                pending = pending + 1;
+                completed = Math.max(0, completed - 1);
+            }
+            
+            pendingElement.textContent = pending;
+            completedElement.textContent = completed;
+        }
     })
     .catch(error => console.error('Error updating task:', error));
 }

@@ -253,13 +253,19 @@ def get_statistics(request):
     """Return statistics for the modal"""
     today = date.today()
     week_start = today - timedelta(days=today.weekday())
+    week_end = week_start + timedelta(days=6)
     
+    # Count all completed tasks
     total_completed = Task.objects.filter(completed=True).count()
+    
+    # Count completed tasks with due dates this week
     tasks_completed_this_week = Task.objects.filter(
         completed=True,
         due_date__gte=week_start,
-        due_date__lte=today
+        due_date__lte=week_end
     ).count()
+    
+    # Count completed tasks with due date today
     tasks_completed_today = Task.objects.filter(
         completed=True,
         due_date=today

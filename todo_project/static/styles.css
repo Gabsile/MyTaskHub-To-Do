@@ -218,6 +218,36 @@ body {
     color: var(--text-primary);
 }
 
+.add-task-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+    transition: all 0.3s ease;
+}
+
+.add-task-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+}
+
+.add-task-icon {
+    font-size: 1.5rem;
+    font-weight: 300;
+    line-height: 1;
+}
+
+.add-task-text {
+    font-size: 0.95rem;
+}
+
 .sort-btn {
     background: transparent;
     border: none;
@@ -273,6 +303,56 @@ body {
 }
 
 /* Quick Add Task */
+/* Chatbot Floating Button */
+.chatbot-floating-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    border: 3px solid white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5), 0 0 0 0 rgba(37, 99, 235, 0.4);
+    transition: all 0.3s ease;
+    z-index: 999;
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5), 0 0 0 0 rgba(37, 99, 235, 0.7);
+    }
+    70% {
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5), 0 0 0 10px rgba(37, 99, 235, 0);
+    }
+    100% {
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5), 0 0 0 0 rgba(37, 99, 235, 0);
+    }
+}
+
+.chatbot-floating-btn:hover {
+    transform: scale(1.15);
+    box-shadow: 0 8px 30px rgba(37, 99, 235, 0.7);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    animation: none;
+}
+
+.chatbot-floating-btn:active {
+    transform: scale(1.05);
+}
+
+.chatbot-floating-btn svg {
+    width: 32px;
+    height: 32px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
 .quick-add-container {
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
@@ -284,8 +364,32 @@ body {
 
 .quick-add-form {
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: 0.75rem;
+}
+
+.quick-add-icon {
+    font-size: 2.5rem;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    font-weight: 200;
+    flex-shrink: 0;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+}
+
+.quick-add-icon:hover {
+    transform: scale(1.15) rotate(90deg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .quick-add-input {
@@ -614,12 +718,29 @@ body {
     color: var(--text-primary);
     text-decoration: none;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: flex-start;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .notif-item a:hover {
     color: var(--accent-blue);
+}
+
+.notif-item .task-title {
+    font-weight: 500;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    line-height: 1.4;
+}
+
+.notif-item .task-time {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
 }
 
 .notif-empty {

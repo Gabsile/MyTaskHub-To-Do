@@ -20,11 +20,20 @@
         </div>
     </div>
 
+    <!-- Chatbot Button -->
+    <button id="chat-btn" class="chatbot-floating-btn" title="Chat Assistant">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" fill="white"/>
+            <path d="M12 2C6.48 2 2 6.48 2 12C2 13.54 2.38 15 3.06 16.28L2 22L7.72 20.94C9 21.62 10.46 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C10.74 20 9.53 19.7 8.46 19.16L8.14 18.98L4.42 19.86L5.3 16.14L5.12 15.82C4.58 14.75 4.28 13.54 4.28 12.28C4.28 7.74 7.74 4.28 12.28 4.28C16.82 4.28 20.28 7.74 20.28 12.28C20.28 16.82 16.54 20 12 20ZM16 13.5C15.75 13.38 14.5 12.76 14.26 12.68C14.02 12.6 13.84 12.56 13.66 12.81C13.48 13.06 12.98 13.64 12.82 13.82C12.66 14 12.5 14.02 12.25 13.9C12 13.78 11.16 13.5 10.18 12.62C9.42 11.94 8.92 11.1 8.76 10.85C8.6 10.6 8.74 10.45 8.86 10.33C8.97 10.22 9.1 10.04 9.22 9.88C9.34 9.72 9.38 9.6 9.46 9.42C9.54 9.24 9.5 9.08 9.44 8.96C9.38 8.84 8.92 7.58 8.7 7.08C8.48 6.6 8.26 6.66 8.1 6.66H7.58C7.4 6.66 7.12 6.72 6.88 6.97C6.64 7.22 5.98 7.84 5.98 9.1C5.98 10.36 6.92 11.58 7.04 11.76C7.16 11.94 8.92 14.64 11.58 15.76C12.18 16.02 12.64 16.18 13 16.3C13.6 16.48 14.14 16.46 14.58 16.4C15.06 16.32 16.08 15.78 16.3 15.18C16.52 14.58 16.52 14.06 16.46 13.96C16.4 13.86 16.25 13.62 16 13.5Z" fill="currentColor"/>
+        </svg>
+    </button>
+
     <!-- Quick Add Task -->
     <div class="quick-add-container">
         <form method="POST" action="{% url 'quick_add_task' %}" class="quick-add-form" id="quickAddForm">
             {% csrf_token %}
             <input type="hidden" name="filter" value="{{ current_filter }}">
+            <a href="{% url 'add_task' %}?filter={{ current_filter }}" class="quick-add-icon" title="Open detailed form">+</a>
             <input 
                 type="text" 
                 name="title" 
